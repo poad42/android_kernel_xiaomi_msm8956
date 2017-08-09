@@ -22,7 +22,7 @@
 	interrupt-parent = <&intc>;
 
 	chosen {
-		bootargs = "sched_enable_hmp=1";
+		bootargs = "boot_cpus=0,1,2,3,4,5 sched_enable_eas=1";
 	};
 
 	aliases {
@@ -221,12 +221,13 @@
 	};
 
 	clock_gcc_gfx: qcom,gcc-gfx@1800000 {
-                compatible = "qcom,gcc-gfx-8976";
-                reg = <0x1800000 0x80000>;
-                reg-names = "cc_base";
+		compatible = "qcom,gcc-gfx-8976";
+		reg = <0x1800000 0x80000>,
+		    <0x00a6004 0x4>;
+		reg-names = "cc_base", "fuse";
 		vdd_gfx-supply = <&gfx_vreg_corner>;
 		gpu_handle = <&msm_gpu>;
-                qcom,gfxfreq-corner =
+		qcom,gfxfreq-corner-v0 =
 			<         0   0 >,
 			< 133333333   1 >,  /* Min SVS   */
 			< 200000000   2 >,  /* Low SVS   */
@@ -236,7 +237,18 @@
 			< 432000000   6 >,  /* NOM       */
 			< 480000000   7 >,  /* Turbo     */
 			< 550000000   8 >,  /* Super Turbo */
-			< 600000000   9 >;  /* Super Turbo */
+			< 621330000   9 >;  /* Super Turbo */
+		qcom,gfxfreq-corner-v1 =
+			<         0   0 >,
+			< 133333333   1 >,  /* Min SVS   */
+			< 200000000   2 >,  /* Low SVS   */
+			< 266666667   3 >,  /* SVS Minus */
+			< 300000000   4 >,  /* SVS       */
+			< 366670000   5 >,  /* SVS Plus  */
+			< 432000000   6 >,  /* NOM       */
+			< 480000000   7 >,  /* Turbo     */
+			< 550000000   8 >,  /* Super Turbo */
+			< 621330000   9 >;  /* Super Turbo */
 		#clock-cells = <1>;
 	};
 
@@ -316,7 +328,8 @@
 			< 1190400000 5>,
 			< 1305600000 6>,
 			< 1382400000 7>,
-			< 1401600000 8>;
+			< 1401600000 8>,
+			< 1440000000 9>;
 		qcom,speed0-bin-v0-c1 =
 			<          0 0>,
 			<  400000000 1>,
@@ -388,7 +401,7 @@
 	cpubw: qcom,cpubw {
 		label = "cpubw";
 		compatible = "qcom,devbw";
-		governor = "cpufreq";
+		governor = "performance";
 		qcom,src-dst-ports = <1 512>;
 		qcom,active-only;
 		qcom,bw-tbl =
@@ -925,6 +938,7 @@
 		interrupt-names = "hc_irq", "pwr_irq";
 
 		qcom,bus-width = <8>;
+		qcom,large-address-bus;
 
 		qcom,cpu-dma-latency-us = <60 340 900>;
 		qcom,cpu-affinity = "affine_cores";
@@ -969,6 +983,7 @@
 		interrupt-names = "hc_irq", "pwr_irq";
 
 		qcom,bus-width = <4>;
+		qcom,large-address-bus;
 
 		qcom,cpu-dma-latency-us = <701>;
 
@@ -1526,9 +1541,9 @@
 		qcom,support-bus-scaling;
 		qcom,msm-bus,vectors-KBps =
 			<55 512 0 0>,
-			<55 512 0 0>,
-			<55 512 120000 1200000>,
-			<55 512 393600 3936000>;
+			<55 512 200000 400000>,
+			<55 512 300000 800000>,
+			<55 512 400000 1000000>;
 		clocks = <&clock_gcc clk_crypto_clk_src>,
 			 <&clock_gcc clk_gcc_crypto_clk>,
 			 <&clock_gcc clk_gcc_crypto_ahb_clk>,
@@ -2619,13 +2634,6 @@
 	qcom,support-hw-trigger;
 	clock-names ="core0_clk";
 	clocks = <&clock_gcc clk_gcc_venus0_core0_vcodec0_clk>;
-	status = "okay";
-};
-
-&gdsc_venus_core1 {
-	qcom,support-hw-trigger;
-	clock-names ="core1_clk";
-	clocks = <&clock_gcc clk_gcc_venus0_core1_vcodec0_clk>;
 	status = "okay";
 };
 
